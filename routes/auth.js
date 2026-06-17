@@ -32,7 +32,13 @@ router.post('/signup', async (req, res) => {
     });
   } catch (error) { return res.status(error.status || 500).json({ error: error.message || 'Signup failed' }); }
   await trackLogin(username);
-  syncUser(user).catch(error => console.warn('PlayFab user sync skipped/failed:', error.message));
+  try {
+    const playfab = await syncUser(user);
+    if (playfab.playFabId) {
+      user.playFabId = playfab.playFabId;
+      await updateJson('users.json', users => users.map(u => u.id === user.id ? { ...u, playFabId: playfab.playFabId, playFabNewlyCreated: playfab.newlyCreated } : u));
+    }
+  } catch (error) { console.warn('PlayFab player creation failed:', error.message); }
   res.json({ user: publicUser(user), sessionToken: user.sessionToken });
 });
 router.post('/login', async (req, res) => {
@@ -51,6 +57,13 @@ router.post('/login', async (req, res) => {
   }));
   if (!found) return res.status(401).json({ error: 'Invalid username or password' });
   await trackLogin(found.username);
+  try {
+    const playfab = await syncUser(found);
+    if (playfab.playFabId && playfab.playFabId !== found.playFabId) {
+      found.playFabId = playfab.playFabId;
+      await updateJson('users.json', users => users.map(u => u.id === found.id ? { ...u, playFabId: playfab.playFabId } : u));
+    }
+  } catch (error) { console.warn('PlayFab player sync failed:', error.message); }
   res.json({ user: publicUser(found), sessionToken: found.sessionToken });
 });
 router.get('/profile/:username', (req, res) => {
