@@ -6,7 +6,8 @@ const defaults = {
   'users.json': [],
   'scores.json': [],
   'leaderboard.json': [],
-  'gameStats.json': { dailyActiveUsers: {}, gamePlays: {}, ratings: {}, comments: {}, screenshots: [], dailyChallenges: [], recentActivity: [] }
+  'gameStats.json': { dailyActiveUsers: {}, gamePlays: {}, ratings: {}, comments: {}, screenshots: [], dailyChallenges: [], recentActivity: [] },
+  'studioGames.json': []
 };
 const locks = new Map();
 

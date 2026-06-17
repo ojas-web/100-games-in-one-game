@@ -14,6 +14,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/games', require('./routes/games'));
 app.use('/api/scores', require('./routes/scores'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/studio', require('./routes/studio'));
 app.get('/api/stats', (req,res)=>{ const users=readJson('users.json'), scores=readJson('scores.json'), stats=readJson('gameStats.json'); const popular=Object.entries(stats.gamePlays||{}).sort((a,b)=>b[1]-a[1])[0]?.[0]||'None'; res.json({ totalUsers:users.length,totalGames:games.length,totalGamesPlayed:scores.length,totalScoresSubmitted:scores.length,mostPopularGame:popular,dailyActiveUsers:Object.fromEntries(Object.entries(stats.dailyActiveUsers||{}).map(([d,u])=>[d,u.length])), categories }); });
 app.get('*', (req,res)=>res.sendFile(path.join(__dirname, 'public', 'index.html')));
 const PORT = process.env.PORT || 3000;
