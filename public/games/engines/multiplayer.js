@@ -1,0 +1,6 @@
+class MultiplayerGame extends BaseGame {
+  reset() { this.player = { x: this.w * .3, y: this.h * .5, r: 15 }; this.player2 = { x: this.w * .7, y: this.h * .5, r: 15 }; }
+  update(dt) { const speed = 3.4; if (this.keys.a) this.player.x -= speed; if (this.keys.d) this.player.x += speed; if (this.keys.w) this.player.y -= speed; if (this.keys.s) this.player.y += speed; if (this.keys.arrowleft) this.player2.x -= speed; if (this.keys.arrowright) this.player2.x += speed; if (this.keys.arrowup) this.player2.y -= speed; if (this.keys.arrowdown) this.player2.y += speed; this.player.x += this.dir.x * speed * .4; this.player.y += this.dir.y * speed * .4; [this.player, this.player2].forEach(p => { p.x = Math.max(15, Math.min(this.w - 15, p.x)); p.y = Math.max(15, Math.min(this.h - 15, p.y)); }); if (Math.hypot(this.player.x - this.player2.x, this.player.y - this.player2.y) < 35) this.score += .4; this.score += .04 * dt / 16; }
+  draw() { this.grid(); this.circle(this.player, '#00f5ff'); this.circle(this.player2, '#ff2bd6'); const c = this.ctx; c.strokeStyle = '#ffd166'; c.beginPath(); c.moveTo(this.player.x, this.player.y); c.lineTo(this.player2.x, this.player2.y); c.stroke(); this.title(); }
+}
+window.MultiplayerGame = MultiplayerGame;
