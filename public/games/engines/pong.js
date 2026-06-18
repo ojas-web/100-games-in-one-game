@@ -1,0 +1,6 @@
+class PongGame extends BaseGame {
+  reset() { this.player = { x: 30, y: this.h / 2, r: 12 }; this.ai = { x: this.w - 30, y: this.h / 2, r: 12 }; this.ball = { x: this.w / 2, y: this.h / 2, vx: 3, vy: 2, r: 10 }; }
+  update(dt) { this.player.y += ((this.pointer.down ? this.pointer.y : this.player.y + this.dir.y * 35) - this.player.y) * .2; this.ai.y += (this.ball.y - this.ai.y) * .06; this.ball.x += this.ball.vx * dt / 16; this.ball.y += this.ball.vy * dt / 16; if (this.ball.y < 10 || this.ball.y > this.h - 10) this.ball.vy *= -1; if (Math.abs(this.ball.x - 30) < 15 && Math.abs(this.ball.y - this.player.y) < 55) { this.ball.vx = Math.abs(this.ball.vx) + .2; this.score += 12; } if (Math.abs(this.ball.x - (this.w - 30)) < 15 && Math.abs(this.ball.y - this.ai.y) < 55) this.ball.vx = -Math.abs(this.ball.vx) - .1; if (this.ball.x < 0 || this.ball.x > this.w) this.ball = { x: this.w / 2, y: this.h / 2, vx: this.ball.x < 0 ? 3 : -3, vy: 2, r: 10 }; }
+  draw() { this.grid(); const c = this.ctx; c.fillStyle = '#00f5ff'; c.fillRect(22, this.player.y - 46, 12, 92); c.fillStyle = '#ff2bd6'; c.fillRect(this.w - 34, this.ai.y - 46, 12, 92); this.circle(this.ball, '#ffd166'); this.title(); }
+}
+window.PongGame = PongGame;
