@@ -36,6 +36,21 @@ async function updateDisplayName(sessionTicket, username) {
     return response.data?.DisplayName || username;
   });
 }
+async function updateDisplayName(sessionTicket, username) {
+  return retryPlayFab(`PlayFab DisplayName update for ${username}`, async () => {
+    console.log('Attempting DisplayName update:', username);
+
+    const response = await callPlayFab(
+      '/Client/UpdateUserTitleDisplayName',
+      { DisplayName: username },
+      { 'X-Authorization': sessionTicket }
+    );
+
+    console.log('DisplayName response:', JSON.stringify(response));
+
+    return response.data?.DisplayName || username;
+  });
+}
 async function ensurePlayer(user) {
   const login = await callPlayFab('/Client/LoginWithCustomID', { TitleId: TITLE_ID, CustomId: user.id, CreateAccount: true, InfoRequestParameters: { GetPlayerProfile: true, ProfileConstraints: { ShowDisplayName: true } } });
   if (login.skipped) return login;
