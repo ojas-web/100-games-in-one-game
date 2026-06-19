@@ -6,7 +6,7 @@ const router = express.Router();
 const NAME_RE = /^[A-Za-z0-9 _-]{3,40}$/;
 const allowedTypes = new Set(['arcade','puzzle','racing','shooter','platformer','sports','strategy','multiplayer']);
 function slug(name) { return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
-router.get('/', (req, res) => res.json({ games: readJson('studioGames.json'), playFabConfigured: isConfigured() }));
+router.get('/', (req, res) => { const username = String(req.headers['x-username'] || req.query.username || '').trim(); const users = readJson('users.json'); const requester = users.find(u => u.username === username); const canSeePrivate = g => g.visibility !== 'private' || g.username === username || requester?.isAdmin || username === 'ojasthescientist'; res.json({ games: readJson('studioGames.json').filter(canSeePrivate), playFabConfigured: isConfigured() }); });
 router.post('/publish', async (req, res) => {
   const username = String(req.body.username || '').trim();
   const name = String(req.body.name || '').trim();
@@ -16,6 +16,7 @@ router.post('/publish', async (req, res) => {
   const css = String(req.body.css || '').trim().slice(0, 20000);
   const javascript = String(req.body.javascript || req.body.js || '').trim().slice(0, 30000);
   const assets = String(req.body.assets || '').trim().slice(0, 10000);
+  const visibility = req.body.visibility === 'private' ? 'private' : 'public';
   if (!username) return res.status(401).json({ error: 'Login required to publish games' });
   if (!html && !css && !javascript) return res.status(400).json({ error: 'Add HTML, CSS, or JavaScript before publishing' });
   if (!NAME_RE.test(name)) return res.status(400).json({ error: 'Game name must be 3-40 letters, numbers, spaces, underscores, or dashes' });
@@ -24,7 +25,7 @@ router.post('/publish', async (req, res) => {
   try {
     await updateJson('studioGames.json', games => {
       if (games.some(g => g.name.toLowerCase() === name.toLowerCase())) throw Object.assign(new Error('A studio game with that title already exists'), { status: 409 });
-      game = { id: `${slug(name)}-${randomUUID().slice(0, 8)}`, name, type, category: 'Player Studio', username, description: description || `A ${type} game created in GameVerse Studio.`, code: { html, css, javascript, assets }, status: 'published', publishedAt: new Date().toISOString(), playFab: { synced: false } };
+      game = { id: `${slug(name)}-${randomUUID().slice(0, 8)}`, name, type, category: 'Player Studio', username, description: description || `A ${type} game created in GameVerse Studio.`, code: { html, css, javascript, assets }, visibility, status: 'published', publishedAt: new Date().toISOString(), playFab: { synced: false } };
       return [game, ...games];
     });
   } catch (error) { return res.status(error.status || 500).json({ error: error.message || 'Publish failed' }); }

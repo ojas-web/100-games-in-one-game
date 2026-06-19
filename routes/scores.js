@@ -11,10 +11,10 @@ router.post('/', async (req, res) => {
   if (!Number.isFinite(score) || score < 0 || score > 10000000) return res.status(400).json({ error: 'Invalid score submission' });
   const entry = { id: randomUUID(), username, gameId, gameName: game.name, score: Math.floor(score), date: new Date().toISOString() };
   await updateJson('scores.json', s => [...s, entry]);
-  await updateJson('leaderboard.json', l => [...l, entry].sort((a,b)=>b.score-a.score).slice(0,500));
+  const leaderboard = await updateJson('leaderboard.json', l => [...l, entry].sort((a,b)=>b.score-a.score).slice(0,500));
   await updateJson('users.json', users => users.map(u => u.username === username ? { ...u, totalScore: (u.totalScore||0)+entry.score, gamesPlayed: (u.gamesPlayed||0)+1, highestScore: Math.max(u.highestScore||0, entry.score), xp: (u.xp||0)+Math.floor(entry.score/10)+10, level: Math.floor(((u.xp||0)+Math.floor(entry.score/10)+10)/100)+1, recentGames: [game.name, ...(u.recentGames||[]).filter(x=>x!==game.name)].slice(0,8), achievements: achievementsFor({ ...u, totalScore: (u.totalScore||0)+entry.score, gamesPlayed: (u.gamesPlayed||0)+1, highestScore: Math.max(u.highestScore||0, entry.score) }) } : u));
   await updateJson('gameStats.json', st => { st.gamePlays[game.name] = (st.gamePlays[game.name] || 0) + 1; st.recentActivity.unshift(entry); st.recentActivity = st.recentActivity.slice(0,50); return st; });
-  res.json({ entry });
+  res.json({ entry, leaderboard });
 });
 router.get('/leaderboard', (req,res)=>res.json({ leaderboard: readJson('leaderboard.json').sort((a,b)=>b.score-a.score) }));
 module.exports = router;
