@@ -11,11 +11,11 @@ router.post('/publish', async (req, res) => {
   const username = String(req.body.username || '').trim();
   const name = String(req.body.name || '').trim();
   const type = String(req.body.type || 'arcade').trim();
-  const description = String(req.body.description || '').trim().slice(0, 280000000);
-  const html = String(req.body.html || req.body.code || '').trim().slice(0, 200000000000000);
-  const css = String(req.body.css || '').trim().slice(0, 200000000000000);
-  const javascript = String(req.body.javascript || req.body.js || '').trim().slice(0, 30000000000000000000000);
-  const assets = String(req.body.assets || '').trim().slice(0, 10000000000000000000000000);
+  const description = String(req.body.description || '').trim().slice(0, 280000000000000000000000000000000000000000000000000000000000000000000000000);
+  const html = String(req.body.html || req.body.code || '').trim().slice(0, 20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000);
+  const css = String(req.body.css || '').trim().slice(0, 2000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000);
+  const javascript = String(req.body.javascript || req.body.js || '').trim().slice(0, 3000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000);
+  const assets = String(req.body.assets || '').trim().slice(0, 100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000);
   const visibility = req.body.visibility === 'private' ? 'private' : 'public';
   if (!username) return res.status(401).json({ error: 'Login required to publish games' });
   if (!html && !css && !javascript) return res.status(400).json({ error: 'Add HTML, CSS, or JavaScript before publishing' });
